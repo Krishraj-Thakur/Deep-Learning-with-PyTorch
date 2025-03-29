@@ -1,0 +1,135 @@
+1️⃣ In the first block (Fine-Tuning), the entire model—including all convolutional layers—is updated during training.
+2️⃣ In the second block (Feature Extraction), the convolutional layers are frozen, meaning they don't get updated, but they still process the input images and extract features. Only the last fully connected (FC) layer is trained.
+
+Breakdown of What's Happening
+💡 ResNet18 Architecture (Simplified)
+
+Convolutional Layers (Extract features like edges, textures, patterns)
+
+Fully Connected (FC) Layer (Last Layer) (Maps extracted features to class probabilities)
+
+🟢 First Block (Fine-Tuning)
+The entire ResNet18 model is fed data.
+
+The convolutional layers AND the FC layer are both updated during training.
+
+The model learns new features and adjusts old ones to better classify "ants" and "bees."
+
+🔵 Second Block (Feature Extraction)
+The entire ResNet18 model is still fed data (input goes through all layers).
+
+The convolutional layers are frozen (don’t update) but still extract features.
+
+The output from the last convolutional layer (512 neurons) is fed into the new FC layer (which maps it to 2 classes: ants & bees).
+
+Only the last FC layer is trained.
+
+Key Takeaway 🚀
+🔹 In both cases, the data flows through all of ResNet18.
+🔹 In the second block, the earlier layers are fixed but still extract features.
+🔹 The last 512 neurons are simply the output of the last ResNet18 convolutional layer, which is used as input to the new FC layer.
+
+Let me know if you need a more visual explanation! 😊
+
+
+
+🔹 ResNet18 Structure (Layer Breakdown)
+Conv1 → (First convolutional layer) Extracts basic edges & textures.
+
+Layer1 (Residual Block 1) → Detects small patterns (corners, curves).
+
+Layer2 (Residual Block 2) → Detects more complex features (shapes, textures).
+
+Layer3 (Residual Block 3) → Detects even higher-level features (object parts).
+
+Layer4 (Residual Block 4) → Detects full object-like structures.
+
+Adaptive Pooling Layer → Reduces spatial size to a fixed 512-neuron vector.
+
+Fully Connected (FC) Layer → Maps the 512 features to output neurons (originally 1000 classes, now 2 for ants/bees).
+
+🔷 What Happens When We Freeze Layers?
+Freezing means the convolutional layers still extract features but don’t get updated.
+
+The model still runs all the convolutional layers, but it only trains the last FC layer that converts the 512 features into 2 class scores.
+
+💡 Key Insight
+Yes! The convolutional layers exist throughout the network and process every image before reaching the fully connected layer. But when we freeze them, they stop learning new features and just act as fixed feature extractors.
+
+Exactly! When the convolutional layers are frozen, they do not update their weights during training.
+
+What Happens When Layers Are Frozen?
+The convolutional layers still process the image and extract features (edges, textures, patterns, object parts).
+
+But since they are frozen (param.requires_grad = False), their weights remain the same as in the pretrained model.
+
+Only the fully connected (FC) layer learns new weights to classify ants vs. bees.
+
+Why Does This Still Work?
+The pretrained ResNet18 was already trained on ImageNet (which has 1,000 different objects).
+
+It already knows how to extract general features like edges, shapes, and textures.
+
+We reuse these extracted features and just train the final classification layer (which maps the 512 extracted features to 2 classes).
+
+💡 Key Takeaway
+Frozen layers 🧊 → Still extract features but don’t update.
+
+Only FC layer 🎯 → Learns new weights to classify our specific dataset.
+
+
+Why Do We Run the First Block and Then Freeze in the Second Block?
+First Block (Fine-tuning the Entire Model)
+
+Here, we allow the entire ResNet18 to be trained on our specific dataset (ants & bees).
+
+This adjusts the convolutional layers slightly, so they focus more on ants & bees rather than generic ImageNet classes.
+
+Second Block (Freezing the Convolutional Layers)
+
+Now that the model is slightly tuned to ants & bees, we freeze the convolutional layers.
+
+Only the last fully connected layer (FC layer) is trained.
+
+This saves time and resources while keeping feature extraction stable.
+
+Why Freeze After Initial Training?
+✅ Reduces Computation 🖥️ → Only the small FC layer is updated, saving GPU/CPU power.
+✅ Prevents Overfitting 🎯 → Stops fine-tuned conv layers from over-adjusting to our small dataset.
+✅ Speeds Up Training ⏩ → Since fewer parameters are trained, it runs much faster.
+
+💡 Key Idea
+First Block: Fine-tune the whole model to better extract relevant features.
+
+Second Block: Freeze conv layers to lock in those features and train only the final classifier for efficiency.
+
+Why Can the Last 512 Neurons Still Change?
+The last 512 neurons belong to the fully connected (FC) layer of ResNet18.
+
+When we replace model.fc with nn.Linear(num_ftrs, 2), we are creating a brand-new output layer with 2 neurons.
+
+Since this new FC layer was not pre-trained, it starts with random weights and must be trained from scratch.
+
+Only this new layer is "trainable" because it's the only one we didn't freeze.
+
+Why Does Freezing the Convolutions Work?
+Feature Extraction is Already Good ✅
+
+The conv layers are pre-trained on ImageNet, so they already recognize general shapes, textures, and objects.
+
+These extracted features are passed to the last 512 neurons, which now only need to learn how to classify ants vs. bees.
+
+Training Only the FC Layer 🎯
+
+Since we freeze all other layers (param.requires_grad = False), only the last FC layer gets updated.
+
+This means only the weights that map the 512 neurons to the 2 output neurons change.
+
+Key Idea 💡
+The 512 neurons are not frozen because they are inputs to the new FC layer.
+
+Since the FC layer is trainable, its weights get adjusted based on the ants vs. bees dataset.
+
+Everything before the last 512 neurons (the conv layers) stays frozen, so they don’t change but still extract useful features.
+
+
