@@ -1,0 +1,62 @@
+📌 TensorBoard Notes
+1️⃣ What is TensorBoard?
+A visualization tool for monitoring and debugging deep learning models.
+
+Helps in analyzing scalars, graphs, images, histograms, and PR curves.
+
+Works with PyTorch, TensorFlow, and other frameworks.
+
+2️⃣ Why Use TensorBoard?
+✅ Tracks training progress (loss, accuracy, etc.).
+✅ Visualizes model architecture and computation graphs.
+✅ Displays image data (e.g., input samples, feature maps).
+✅ Monitors weight updates and gradients using histograms.
+✅ Helps in hyperparameter tuning (e.g., learning rate optimization).
+
+3️⃣ How to Use TensorBoard in PyTorch?
+1️⃣ Import TensorBoard
+
+from torch.utils.tensorboard import SummaryWriter
+writer = SummaryWriter('runs/experiment1')  # Creates a log directory
+
+
+2️⃣ Log Scalars (e.g., loss, accuracy)
+writer.add_scalar('Loss/train', loss, epoch)
+writer.add_scalar('Accuracy/train', acc, epoch)
+
+
+3️⃣ Visualize Model Graph
+writer.add_graph(model, sample_input)
+
+
+4️⃣ Log Images
+img_grid = torchvision.utils.make_grid(images)
+writer.add_image('MNIST images', img_grid)
+
+
+5️⃣ Log Precision-Recall Curve
+writer.add_pr_curve('PR Curve', labels, predictions, global_step=0)
+
+
+6️⃣ Close TensorBoard Writer
+writer.close()
+
+
+4️⃣ Running TensorBoard
+In your terminal, run:
+
+tensorboard --logdir=runs
+Open localhost:6006 in your browser.
+
+5️⃣ Key TensorBoard Components
+Feature	Purpose
+Scalars	Tracks values like loss, accuracy over time.
+Graphs	Visualizes the computation graph of the model.
+Images	Displays images from datasets or feature maps.
+Histograms	Shows weight and activation distributions.
+PR Curves	Precision-Recall curves for classification tasks.
+6️⃣ Best Practices
+🔹 Log loss and accuracy during training.
+🔹 Add model graphs to verify architecture.
+🔹 Monitor weight updates to detect issues like vanishing gradients.
+🔹 Use PR curves for multi-class classification performance.
