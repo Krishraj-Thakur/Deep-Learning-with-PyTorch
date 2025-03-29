@@ -1,0 +1,117 @@
+PyTorch Model Saving & Loading Notes
+
+1. Different Methods for Saving & Loading
+
+torch.save(arg, PATH): Saves a model, tensor, or dictionary.
+
+torch.load(PATH): Loads a saved object.
+
+torch.load_state_dict(arg): Loads only the model parameters (state dictionary).
+
+2. Two Ways to Save Models
+
+(1) Saving the Whole Model (Lazy Way)
+
+torch.save(model, PATH)  # Saves the entire model, including structure & weights
+
+Loading:
+
+model = torch.load(PATH)  # Loads the entire model
+model.eval()  # Switches to evaluation mode
+
+(2) Saving Only the State Dictionary (Recommended)
+
+torch.save(model.state_dict(), PATH)  # Saves only model parameters
+
+Loading:
+
+model = Model(*args, **kwargs)  # Recreate the model structure
+model.load_state_dict(torch.load(PATH))  # Load saved weights
+model.eval()
+
+3. Model Definition
+
+import torch
+import torch.nn as nn
+
+class Model(nn.Module):
+    def __init__(self, n_input_features):
+        super(Model, self).__init__()
+        self.linear = nn.Linear(n_input_features, 1)  # One linear layer
+
+    def forward(self, x):
+        y_pred = torch.sigmoid(self.linear(x))  # Sigmoid activation
+        return y_pred
+
+nn.Linear(n_input_features, 1): Creates a single-layer neural network.
+
+torch.sigmoid(self.linear(x)): Applies the sigmoid function to the output.
+
+4. Saving and Loading the Entire Model
+
+FILE = "model.pth"
+torch.save(model, FILE)  # Save entire model
+
+loaded_model = torch.load(FILE)  # Load the model
+loaded_model.eval()  # Switch to evaluation mode
+
+Saves the entire model, including its structure and parameters.
+
+5. Saving and Loading Only the State Dictionary
+
+FILE = "model.pth"
+torch.save(model.state_dict(), FILE)  # Save only weights
+
+loaded_model = Model(n_input_features=6)  # Recreate the model structure
+loaded_model.load_state_dict(torch.load(FILE))  # Load only weights
+loaded_model.eval()  # Switch to evaluation mode
+
+Preferred method for flexibility across different architectures.
+
+6. Saving & Loading Checkpoints (State Dictionary + Optimizer)
+
+learning_rate = 0.01
+optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+
+checkpoint = {
+    "epoch": 90,  # Save current epoch
+    "model_state": model.state_dict(),  # Save model weights
+    "optim_state": optimizer.state_dict()  # Save optimizer state
+}
+
+FILE = "checkpoint.pth"
+torch.save(checkpoint, FILE)  # Save checkpoint
+
+Loading a Checkpoint
+
+model = Model(n_input_features=6)
+optimizer = torch.optim.SGD(model.parameters(), lr=0)  # Learning rate will be overwritten
+
+checkpoint = torch.load(FILE)
+model.load_state_dict(checkpoint['model_state'])  # Load model parameters
+optimizer.load_state_dict(checkpoint['optim_state'])  # Load optimizer state
+epoch = checkpoint['epoch']  # Restore epoch
+
+model.eval()  # Switch to evaluation mode
+
+Restores both model and optimizer states, allowing training to resume from where it left off.
+
+Key Takeaways
+
+✅ Saving the whole model: Saves everything but is less flexible.✅ Saving only state_dict: More recommended for saving model weights.✅ Saving checkpoints: Best for resuming training, as it saves optimizer states and epoch info.
+
+Additional Notes
+
+Always use .eval() before inference to disable dropout and batch normalization.
+
+When loading a state_dict, ensure the model architecture matches the saved one.
+
+If you change your model architecture, saving only state_dict is preferable over saving the full model.
+
+Common Use Cases
+
+Deploying a model: Use state_dict.
+
+Resuming training: Use checkpoints.
+
+Experimenting with architectures: Save state_dict and recreate model manually.
